@@ -1,46 +1,32 @@
-# Default values for jenkins.
-# This is a YAML-formatted file.
-# Declare name/value pairs to be passed into your templates.
-# name: value
-
-## Overrides for generated resource names
-# See templates/_helpers.tpl
-# nameOverride:
-# fullnameOverride:
-
 Master:
   Name: jenkins-master
   Image: "jenkins/jenkins"
-  ImageTag: "2.161"
-  ImagePullPolicy: "IfNotPresent"
+  ImageTag: "2.162"
+  ImagePullPolicy: "Always"
   Component: "jenkins-master"
   UseSecurity: true
   AdminUser: admin
-  # AdminPassword: <defaults to random>
   Cpu: "200m"
-  Memory: "256Mi"
+  Memory: "1Gi"
   ServicePort: 8080
-  # For minikube, set this to NodePort, elsewhere use LoadBalancer
-  # <to set explicitly, choose port between 30000-32767>
   ServiceType: NodePort
   NodePort: 32000
   ServiceAnnotations: {}
   ContainerPort: 8080
-  # Enable Kubernetes Liveness and Readiness Probes
   HealthProbes: true
   HealthProbesTimeout: 60
   SlaveListenerPort: 50000
   LoadBalancerSourceRanges:
     - 0.0.0.0/0
-  # List of plugins to be install during Jenkins master start
   InstallPlugins:
     - kubernetes:1.14.3
     - workflow-aggregator:2.5
     - workflow-job:2.31
     - credentials-binding:1.17
-    - git:3.9.1
-    - blueocean:1.10.1
-  # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
+    - git:3.9.3
+    - git-client:2.7.6
+    - greenballs:1.15
+    - ws-cleanup:0.37
   ScriptApproval:
     - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
     - "new groovy.json.JsonSlurperClassic"
@@ -57,11 +43,9 @@ Agent:
   Component: "jenkins-slave"
   Privileged: false
   Cpu: "200m"
-  Memory: "256Mi"
+  Memory: "512Mi"
   # You may want to change this to true while testing a new image
   AlwaysPullImage: false
-  # You can define the volumes that you want to mount for this container
-  # Allowed types are: ConfigMap, EmptyDir, HostPath, Nfs, Pod, Secret
   volumes:
     - type: HostPath
       hostPath: /var/run/docker.sock
@@ -70,11 +54,6 @@ Agent:
 
 Persistence:
   Enabled: true
-  ## A manually managed Persistent Volume and Claim
-  ## Requires Persistence.Enabled: true
-  ## If defined, PVC must be created manually before volume will be bound
-  # ExistingClaim:
-  ## jenkins data Persistent Volume Storage Class
   StorageClass: jenkins-pv
 
   Annotations: {}
@@ -89,17 +68,11 @@ Persistence:
   #    readOnly: true
 
 NetworkPolicy:
-  # Enable creation of NetworkPolicy resources.
   Enabled: false
-  # For Kubernetes v1.4, v1.5 and v1.6, use 'extensions/v1beta1'
-  # For Kubernetes v1.7, use 'networking.k8s.io/v1'
   ApiVersion: networking.k8s.io/v1
 
-## Install Default RBAC roles and bindings
 rbac:
   install: true
   serviceAccountName: default
-  # RBAC api version (currently either v1beta1 or v1alpha1)
   apiVersion: v1beta1
-  # Cluster role reference
   roleRef: cluster-admin
