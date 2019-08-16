@@ -33,6 +33,7 @@ master:
     - workflow-aggregator:2.5
     - workflow-job:2.31
     - credentials-binding:1.17
+    - pipeline-utility-steps:2.3.0
     - git:3.9.3
     - git-client:2.7.6
     - greenballs:1.15
