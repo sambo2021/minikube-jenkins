@@ -1,7 +1,7 @@
 master:
   componentName: jenkins-master
   image: "jenkins/jenkins"
-  tag: "2.162"
+  tag: "2.189"
   imagePullPolicy: "Always"
   useSecurity: true
   adminUser: admin
@@ -29,13 +29,13 @@ master:
   loadBalancerSourceRanges:
     - 0.0.0.0/0
   installPlugins:
-    - kubernetes:1.14.3
-    - workflow-aggregator:2.5
-    - workflow-job:2.31
-    - credentials-binding:1.17
+    - kubernetes:1.18.1
+    - workflow-aggregator:2.6
+    - workflow-job:2.33
+    - credentials-binding:1.20
     - pipeline-utility-steps:2.3.0
-    - git:3.9.3
-    - git-client:2.7.6
+    - git:3.11.0
+    - git-client:2.8.0
     - greenballs:1.15
     - ws-cleanup:0.37
   scriptApproval:
