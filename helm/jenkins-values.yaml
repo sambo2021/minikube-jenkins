@@ -1,24 +1,34 @@
-Master:
-  Name: jenkins-master
-  Image: "jenkins/jenkins"
-  ImageTag: "2.162"
-  ImagePullPolicy: "Always"
-  Component: "jenkins-master"
-  UseSecurity: true
-  AdminUser: admin
-  Cpu: "200m"
-  Memory: "1Gi"
-  ServicePort: 8080
-  ServiceType: NodePort
-  NodePort: 32000
-  ServiceAnnotations: {}
-  ContainerPort: 8080
-  HealthProbes: true
-  HealthProbesTimeout: 60
-  SlaveListenerPort: 50000
-  LoadBalancerSourceRanges:
+master:
+  componentName: jenkins-master
+  image: "jenkins/jenkins"
+  tag: "2.162"
+  imagePullPolicy: "Always"
+  useSecurity: true
+  adminUser: admin
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "1Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4096Mi"
+  servicePort: 8080
+  serviceType: NodePort
+  nodePort: 32000
+  serviceAnnotations: {}
+  containerPort: 8080
+  healthProbesLivenessTimeout: 5
+  healthProbesReadinessTimeout: 5
+  healthProbeLivenessPeriodSeconds: 10
+  healthProbeReadinessPeriodSeconds: 10
+  healthProbeLivenessFailureThreshold: 5
+  healthProbeReadinessFailureThreshold: 3
+  healthProbeLivenessInitialDelay: 90
+  healthProbeReadinessInitialDelay: 60
+  slaveListenerPort: 50000
+  loadBalancerSourceRanges:
     - 0.0.0.0/0
-  InstallPlugins:
+  installPlugins:
     - kubernetes:1.14.3
     - workflow-aggregator:2.5
     - workflow-job:2.31
@@ -27,38 +37,41 @@ Master:
     - git-client:2.7.6
     - greenballs:1.15
     - ws-cleanup:0.37
-  ScriptApproval:
+  scriptApproval:
     - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
     - "new groovy.json.JsonSlurperClassic"
     - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods leftShift java.util.Map java.util.Map"
     - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods split java.lang.String"
-  CustomConfigMap: false
-  NodeSelector: {}
-  Tolerations: {}
+  customConfigMap: false
+  nodeSelector: {}
+  tolerations: {}
 
-Agent:
-  Enabled: true
-  Image: jenkins/jnlp-slave
-  ImageTag: 3.10-1
-  Component: "jenkins-slave"
-  Privileged: false
-  Cpu: "200m"
-  Memory: "512Mi"
+agent:
+  enabled: true
+  image: jenkins/jnlp-slave
+  tag: 3.10-1
+  componentName: "jenkins-slave"
+  privileged: false
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "200m"
+      memory: "512Mi"
   # You may want to change this to true while testing a new image
-  AlwaysPullImage: false
+  alwaysPullImage: false
   volumes:
     - type: HostPath
       hostPath: /var/run/docker.sock
       mountPath: /var/run/docker.sock
-  NodeSelector: {}
+  nodeSelector: {}
 
-Persistence:
-  Enabled: true
-  StorageClass: jenkins-pv
-
-  Annotations: {}
-  AccessMode: ReadWriteOnce
-  Size: 20Gi
+persistence:
+  enabled: true
+  annotations: {}
+  accessMode: ReadWriteOnce
+  size: 20Gi
   volumes:
   #  - name: nothing
   #    emptyDir: {}
@@ -67,12 +80,12 @@ Persistence:
   #    name: nothing
   #    readOnly: true
 
-NetworkPolicy:
-  Enabled: false
-  ApiVersion: networking.k8s.io/v1
+networkPolicy:
+  enabled: false
+  apiVersion: networking.k8s.io/v1
 
 rbac:
-  install: true
-  serviceAccountName: default
+  create: true
+  serviceAccount:
+    name: default
   apiVersion: v1beta1
-  roleRef: cluster-admin
