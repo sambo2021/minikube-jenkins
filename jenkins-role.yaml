@@ -5,7 +5,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: jenkins-project
+  namespace: sybrenbolandit
 roleRef:
   kind: ClusterRole
   name: cluster-admin
